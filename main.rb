@@ -7,6 +7,8 @@ class Main
 
   def run
     data = FileReader.read(@input)
-    p data.split.map(&:chomp)
+    # analyzer = LexAnalyzer.new
+    # analyzed_data = analyzer.analyze(data)
+    analyzed_data = LexAnalyzer.analyze(data)
   end
 end

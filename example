@@ -1,6 +1,6 @@
 case capacity
 when 0
-  "You ran out of gas."
+ a + b
 when 1..20
   "The tank is almost empty. Quickly, find a gas station!"
 when 21..70
