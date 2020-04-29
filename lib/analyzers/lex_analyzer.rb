@@ -12,7 +12,7 @@ module LexAnalyzer
   def self.analyze(data)
     sym = {}
     arr = []
-    line_value = 0
+    line_value = 1
 
     data.each_line do |line|
       i = 0
@@ -34,7 +34,7 @@ module LexAnalyzer
             word = ''
           end
 
-        elsif word != ''
+        elsif !word.empty?
           sym[:ID] = word
           arr.push(sym)
           sym = {}
