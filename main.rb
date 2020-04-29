@@ -9,6 +9,7 @@ class Main
     data = FileReader.read(@input)
 
     analyzed = LexAnalyzer.analyze(data)
+    
     # analyzer = LexAnalyzer.new
     # analyzed_data = analyzer.analyze(data)
     # analyzed_data = LexAnalyzer.analyze(data)
