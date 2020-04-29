@@ -1,50 +1,78 @@
 # frozen_string_literal: true
 
 module LexAnalyzer
-  @symbols = { plus: '+', minus: '-', divider: '/', multiplier: '*',
-               assignment: '=', comparsion: '==', lesser: '<', greater: '>',
-               lesser_or_equal: '<=', greater_or_equal: '>=', eol: ';',
-               isTrue: '?', isFalse: ':', brace_open: '{', brace_close: '}',
-               bracket_open: '(', bracket_close: ')' }
+  @symbols = { PLUS: '+', MINUS: '-', DIVIDER: '/', MULTIPLIER: '*',
+               ASSIGNMENT: '=', COMPARSION: '==', LESSER: '<', GREATER: '>',
+               LESSER_OR_EQUAL: '<=', GREATER_OR_EQUAL: '>=', EOL: ';',
+               IS_TRUE: '?', IS_FALSE: ':', BRACE_OPEN: '{', BRACE_CLOSE: '}',
+               BRACKET_OPEN: '(', BRACKET_CLOSE: ')' }
 
-  @words = { if: 'if', else: 'else', int: 'int' }
+  @words = { IF: 'if', ELSE: 'else', INT: 'int' }
 
   def self.analyze(data)
     sym = {}
     arr = []
-    value = {}
+    line_value = 0
+
     data.each_line do |line|
+      i = 0
       word = ''
       line.chomp!
-      chars = line.split('')
-      chars.each do |char|
-        next if char == ' '
+      char = line.split('')
+      while i < char.length
 
-        if @symbols.value?(char)
-          key = @symbols.key(char)
-          p key
-          sym[key] = char
-          arr.push(sym)
-          sym.clear
-        elsif letter?(char)
-          word += char
+        if @symbols.value?(char[i])
+          push_to_array(arr, line_value, @symbols, char[i])
+
+        elsif letter?(char[i])
+          while letter?(char[i])
+            word += char[i]
+            i += 1
           end
-        if @words.value?(word)
-          key = @words.key(word)
-          sym[key] = word
+          if @words.value?(word)
+            push_to_array(arr, line_value, @words, word)
+            word = ''
+          end
+
+        elsif word != ''
+          sym[:ID] = word
           arr.push(sym)
-          sym.clear
+          sym = {}
+          word = ''
+        end
+        sym[:line] = line_value
+        i += 1
+      end
+      line_value += 1
+    end
+    print_array(arr)
+    arr
+  end
+
+  def self.push_to_array(arr, line_value, hash, value)
+    sym = {}
+    key = hash.key(value)
+    sym[key] = value
+    sym[:line] = line_value
+    arr.push(sym)
+  end
+
+  def self.print_array(arr)
+    arr.each do |element|
+      element.each do |k, v|
+        if k != :line
+          print "#{k} : '#{v}' , line: #{element[:line]}"
+          puts ''
         end
       end
     end
-    p arr
   end
 
-  def self.letter?(lookAhead)
-    lookAhead =~ /[[:alpha:]]/
+  def self.numeric?(char)
+    char =~ /[0-9]/
   end
 
-  def self.numeric?(lookAhead)
-    lookAhead =~ /[[:digit:]]/
+  def self.letter?(char)
+    char =~ /[A-Za-z]/
   end
 end
