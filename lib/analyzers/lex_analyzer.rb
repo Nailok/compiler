@@ -10,7 +10,6 @@ module LexAnalyzer
   @words = { IF: 'if', ELSE: 'else', INT: 'int' }
 
   def self.analyze(data)
-    sym = {}
     arr = []
     line_value = 1
 
@@ -19,34 +18,38 @@ module LexAnalyzer
       word = ''
       line.chomp!
       char = line.split('')
-      while i < char.length
-
+      while i < line.length
         if @symbols.value?(char[i])
           push_to_array(arr, line_value, @symbols, char[i])
 
         elsif letter?(char[i])
-          while letter?(char[i])
+          while letter?(char[i]) && i < line.length
             word += char[i]
             i += 1
           end
           if @words.value?(word)
             push_to_array(arr, line_value, @words, word)
             word = ''
-          end
 
-        elsif !word.empty?
-          sym[:ID] = word
-          arr.push(sym)
-          sym = {}
-          word = ''
+          elsif !word.empty?
+            push_var_to_array(arr, line_value, word)
+            word = ''
+          end
         end
-        sym[:line] = line_value
+
         i += 1
       end
       line_value += 1
     end
     print_array(arr)
     arr
+  end
+
+  def self.push_var_to_array(arr, line_value, var)
+    sym = {}
+    sym[:ID] = var
+    sym[:line] = line_value
+    arr.push(sym)
   end
 
   def self.push_to_array(arr, line_value, hash, value)
