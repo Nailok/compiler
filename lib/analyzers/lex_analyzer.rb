@@ -22,19 +22,22 @@ module LexAnalyzer
         if @symbols.value?(char[i])
           push_to_array(arr, line_value, @symbols, char[i])
 
-        elsif letter?(char[i])
-          while letter?(char[i]) && i < line.length
+        elsif char?(char[i])
+          while char?(char[i]) && !@symbols.value?(char[i]) && i < line.length
             word += char[i]
             i += 1
           end
           if @words.value?(word)
             push_to_array(arr, line_value, @words, word)
-            word = ''
+
+          elsif numeric?(word) && !word.empty?
+            push_var_to_array(arr, word, 'NUMBER', line_value)
 
           elsif !word.empty?
-            push_var_to_array(arr, line_value, word)
-            word = ''
+            push_var_to_array(arr, word, 'ID', line_value)
           end
+
+          word = ''
         end
 
         i += 1
@@ -45,9 +48,15 @@ module LexAnalyzer
     arr
   end
 
-  def self.push_var_to_array(arr, line_value, var)
+  def self.numeric?(str)
+    !!Float(str)
+  rescue StandardError
+    false
+  end
+
+  def self.push_var_to_array(arr, var, key, line_value)
     sym = {}
-    sym[:ID] = var
+    sym[key] = var
     sym[:line] = line_value
     arr.push(sym)
   end
@@ -71,11 +80,7 @@ module LexAnalyzer
     end
   end
 
-  def self.numeric?(char)
-    char =~ /[0-9]/
-  end
-
-  def self.letter?(char)
-    char =~ /[A-Za-z]/
+  def self.char?(char)
+    char =~ /[0-9A-Za-z]/
   end
 end
