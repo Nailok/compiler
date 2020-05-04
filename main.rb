@@ -1,5 +1,7 @@
-class Main
+# frozen_string_literal: true
 
+# Main class
+class Main
   def initialize(options)
     @input = options[:input]
     @analyzer = options[:analyze]
@@ -9,7 +11,8 @@ class Main
     data = FileReader.read(@input)
 
     analyzed = LexAnalyzer.analyze(data)
-    
+    LexAnalyzer.print_array(analyzed)
+
     # analyzer = LexAnalyzer.new
     # analyzed_data = analyzer.analyze(data)
     # analyzed_data = LexAnalyzer.analyze(data)

@@ -55,7 +55,6 @@ module LexAnalyzer
       end
       line_value += 1
     end
-    print_array(arr)
     arr
   end
 
