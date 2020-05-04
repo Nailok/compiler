@@ -44,8 +44,12 @@ module LexAnalyzer
           push_to_array_with_key(arr, word, 'VAR', line_value)
         end
 
-        push_to_array(arr, line_value, @symbols, char[i])
-
+        if (i + 1 < line.length) && include_in_hash?(@symbols, char[i] + char[i + 1])
+          push_to_array(arr, line_value, @symbols, char[i] + char[i + 1])
+          i += 1
+        else
+          push_to_array(arr, line_value, @symbols, char[i])
+        end
         word = ''
         i += 1
       end
