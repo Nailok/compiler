@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'require_all'
-require '~/ruby_compiler/main.rb'
+require_relative 'main.rb'
 
 require_all 'lib'
 require_all 'bin'
