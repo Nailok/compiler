@@ -8,12 +8,9 @@ class OptionParser
   def self.parse
     OptionParser.new do |parser|
       parser.on('-i', '--input=FILE',
-                'File to convert')
-
-      parser.on('-o', '--output=FORMAT',
-                'Choose one of the formats: json, atom, rss')
-      parser.on('-n', '--name=FILE',
-                'Type converted file name')
+                'File to analyze')
+      parser.on('-l', '--analyzer=ANALYZER',
+                'Run lexical analyzer')
       parser.on('-h', '--help', 'Prints this help') do
         exit
       end
