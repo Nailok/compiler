@@ -55,7 +55,19 @@ module LexAnalyzer
       end
       line_value += 1
     end
+
+    clear_array_from_garbage(arr)
     arr
+  end
+
+  def self.clear_array_from_garbage(arr)
+    i = 0
+    while i < arr.length
+      if arr[i].length == 1
+        arr.delete_at(i)
+      elsif i += 1
+      end
+    end
   end
 
   def self.numeric?(str)
