@@ -1,3 +1,1 @@
-int a = 0; 
-int b = 3; int q = 0;
-int w = 1;
+int a =0, b = 2;

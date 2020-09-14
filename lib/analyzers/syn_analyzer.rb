@@ -33,11 +33,14 @@ module SynAnalyzer
 
   def self.init
     if accept(KeyId::INT)
-      expect(KeyId::VAR)
-      expect(KeyId::ARITHMETIC)
-      if accept(KeyId::VAR)
-      elsif accept(KeyId::NUMBER)
-      else raise 'init: Wrong symbol'
+      loop do
+        expect(KeyId::VAR)
+        expect(KeyId::ARITHMETIC)
+        if accept(KeyId::VAR)
+        elsif accept(KeyId::NUMBER)
+        else raise 'init: Wrong symbol'
+        end
+        break unless accept(KeyId::COMMA)
       end
       expect(KeyId::EOL)
       init
