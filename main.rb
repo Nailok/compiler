@@ -9,12 +9,12 @@ class Main
 
   def run
     data = FileReader.read(@input)
-
+    p 'CODE: '
+    puts data
+    puts '____________________________________'
     analyzed = LexAnalyzer.analyze(data)
-    LexAnalyzer.print_array(analyzed)
-
-    # analyzer = LexAnalyzer.new
-    # analyzed_data = analyzer.analyze(data)
-    # analyzed_data = LexAnalyzer.analyze(data)
+    puts analyzed
+    # LexAnalyzer.print_array(analyzed)
+    SynAnalyzer.program(analyzed)
   end
 end

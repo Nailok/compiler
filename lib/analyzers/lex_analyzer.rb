@@ -6,7 +6,11 @@ module LexAnalyzer
                COMPARISON: ['==', '<', '>', '<=', '>='],
                EOL: [';'],
                TERNARY: ['?', ':'],
-               BRACE: ['{', '}', '(', ')'] }
+               L_BRACE: ['{'],
+               R_BRACE: ['}'],
+               ROUND_R_BRACE: [')'],
+               ROUND_L_BRACE: ['('],
+               COMMA: [','] }
 
   @words = {
     STATEMENT: %w[if else],
@@ -38,10 +42,10 @@ module LexAnalyzer
         end
 
         if numeric?(word)
-          push_to_array_with_key(arr, word, 'NUMBER', line_value)
+          push_to_array_with_key(arr, word, :NUMBER, line_value)
 
         elsif !word.empty?
-          push_to_array_with_key(arr, word, 'VAR', line_value)
+          push_to_array_with_key(arr, word, :VAR, line_value)
         end
 
         if (i + 1 < line.length) && include_in_hash?(@symbols, char[i] + char[i + 1])
