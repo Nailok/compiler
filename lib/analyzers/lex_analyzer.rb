@@ -2,8 +2,9 @@
 
 # module for lexical analyze
 module LexAnalyzer
-  @symbols = { ARITHMETIC: ['+', '-', '/', '*', '='],
+  @symbols = { ARITHMETIC: ['+', '-', '/', '*'],
                COMPARISON: ['==', '<', '>', '<=', '>='],
+               ASSIGNMENT: ['='],
                EOL: [';'],
                TERNARY: ['?', ':'],
                L_BRACE: ['{'],
