@@ -4,7 +4,7 @@ if (a>=10)
 {
     a = a + b;
 }
-else
+else if (a<5)
 {
     b = b + b;
 }

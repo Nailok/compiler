@@ -1,3 +1,4 @@
+require_relative '../../bin/ast.rb'
 require_relative '../../bin/token.rb'
 require_relative '../../bin/key_id.rb'
 
@@ -45,8 +46,7 @@ module SynAnalyzer
       loop do
         expect(KeyId::VAR)
         expect(KeyId::ASSIGNMENT)
-        if accept(KeyId::VAR)
-        elsif accept(KeyId::NUMBER)
+        if accept(KeyId::VAR) || accept(KeyId::NUMBER)
         else raise 'init: Wrong symbol'
         end
         break unless accept(KeyId::COMMA)
@@ -73,25 +73,19 @@ module SynAnalyzer
 
   def self.term
     factor
-    while accept(KeyId::MULTIPLY) || accept(KeyId::DIV)
-      # next_token
-      factor
-    end
+    factor while accept(KeyId::MULTIPLY) || accept(KeyId::DIV)
   end
 
   def self.expression
     next_token if accept(KeyId::PLUS) || accept(KeyId::MINUS)
     term
-    while accept(KeyId::PLUS) || accept(KeyId::MINUS)
-      # next_token
-      term
-    end
+    term while accept(KeyId::PLUS) || accept(KeyId::MINUS)
+
   end
 
   def self.condition
     expression
     if accept(KeyId::COMPARISON)
-      # next_token
       expression
     else
       raise 'Condition: invalid operator'
@@ -102,27 +96,22 @@ module SynAnalyzer
     if accept(KeyId::VAR)
       expect(KeyId::ASSIGNMENT)
       expression
-      # expect(KeyId::EOL)
+      expect(KeyId::EOL)
     elsif accept(KeyId::IF)
       expect(KeyId::ROUND_L_BRACE)
       condition
       expect(KeyId::ROUND_R_BRACE)
       expect(KeyId::L_BRACE)
-      until accept(KeyId::R_BRACE)
-        expression
-        expect(KeyId::EOL)
-      end
+      statement until accept(KeyId::R_BRACE)
       if accept(KeyId::ELSE)
         if accept(KeyId::IF)
           expect(KeyId::ROUND_L_BRACE)
           condition
           expect(KeyId::ROUND_R_BRACE)
-          expect(KeyId::L_BRACE)
-          until accept(KeyId::R_BRACE)
-            expression
-            expect(KeyId::EOL)
-          end
         end
+        # Вынести за условие
+        expect(KeyId::L_BRACE)
+        statement until accept(KeyId::R_BRACE)
       elsif accept(KeyId::L_BRACE)
         statement
         expect(KeyId::R_BRACE)
@@ -130,51 +119,9 @@ module SynAnalyzer
     end
   end
 
-  def self.ternary
-    condition
-  end
-
-  # else
-  # expect(KeyId::L_BRACE)
-  # while !accept(KeyId::R_BRACE)
-  # expression
-  # expect(KeyId::EOL)
-  # end
-  # expect(KeyId::R_BRACE)
-  # end
-
-  # def self.statement
-  # if accept(KeyId::IF)
-  # if accept(KeyId::ROUND_L_BRACE)
-  # condition
-  # expect(KeyId::ROUND_R_BRACE)
-  # elsif accept('?')
-  # expression
-  # expect(':')
-  # expression
-  # end
-  # end
-  # end
-
-  # def self.expression
-  # expect(KeyId::VAR)
-  # expect(KeyId::ASSIGNMENT)
-  # loop do
-  # if accept(KeyId::VAR) || accept(KeyId::NUMBER)
-  # expect(KeyId::ARITHMETIC)
-  # if accept(KeyId::VAR) || accept(KeyId::NUMBER)
-  # else raise 'expression: Wrong symbol'
-  # end
-  # else raise 'expression: Wrong symbol'
-  # end
-  # break unless accept(KeyId::COMMA)
-  # end
-  # end
-
   def self.program(arr)
     @arr = arr
     next_token
     init unless @arr.empty?
-    # statement
   end
 end

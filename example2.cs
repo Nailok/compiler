@@ -1,17 +1,6 @@
-int a =0, b = 2;
-
-if ( a == b)
+int a5=10;
+int b=5;
+if (a>=10)
 {
-	5 + 3 + 2;
-}
-else if ( a > b)
-{ 
-	4 + 2;
-}
-else if ( a != b)
-{
-	2 + 2;
-}
-else{
-	9+12;
+    a = a + b;
 }

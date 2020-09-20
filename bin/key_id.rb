@@ -23,4 +23,6 @@ class KeyId
   define :LSE, '<='
   define :IF, 'IF'
   define :ELSE, 'ELSE'
+  define :QUESTIONMARK, '?'
+  define :COLON, ':'
 end
