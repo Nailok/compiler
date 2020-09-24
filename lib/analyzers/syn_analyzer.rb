@@ -10,7 +10,7 @@ module SynAnalyzer
   @token_type = @current_tok.type.to_s
   @arr = []
   @errors = []
-  @root_node = Tree::TreeNode.new("BEGIN", 'begin')
+  @root_node = Tree::TreeNode.new('BEGIN', 'begin')
 
   def self.next_token
     unless @arr.empty?
@@ -49,12 +49,11 @@ module SynAnalyzer
     raise 'Wrong value...'
   end
 
-
   def self.init
     if accept(KeyId::INT)
       loop do
         temp = @root_node << Tree::TreeNode.new("VARIABLE_DECLARATION (#{@token_value})", @token_value)
-        temp << Tree::TreeNode.new("VARIABLE_TYPE (INT)", KeyId::INT)
+        temp << Tree::TreeNode.new('VARIABLE_TYPE (INT)', KeyId::INT)
         expect(KeyId::VAR)
         expect(KeyId::ASSIGNMENT)
         if accept(KeyId::VAR) || accept(KeyId::NUMBER)
@@ -65,17 +64,14 @@ module SynAnalyzer
       expect(KeyId::EOL)
       init
     end
-     statement
+    statement
   end
 
   def self.factor
     if accept(KeyId::VAR)
-      return VarAST.new('VAR', @prev_value)
     elsif accept(KeyId::NUMBER)
-      return NumAST.new('NUMBER', @prev_value)
     elsif accept(KeyId::ROUND_L_BRACE)
       node = expression
-
       expect(KeyId::ROUND_R_BRACE)
     else
       raise 'Factor: Wrong symbol'
@@ -85,27 +81,29 @@ module SynAnalyzer
   end
 
   def self.term
-    node = factor
-    node = ExprAST.new(node, @prev_value, factor) while accept(KeyId::MULTIPLY) || accept(KeyId::DIV)
+    factor
+    factor while accept(KeyId::MULTIPLY) || accept(KeyId::DIV)
     node
   end
 
   def self.expression
-    next_token if accept(KeyId::PLUS) || accept(KeyId::MINUS)
+     if accept(KeyId::PLUS) || accept(KeyId::MINUS) 
+       next_token
+     end
     node = term
-    node = ExprAST.new(node, @prev_value, term) while accept(KeyId::PLUS) || accept(KeyId::MINUS)
+    term while accept(KeyId::PLUS) || accept(KeyId::MINUS)
     # p node
     # p node.left
     # p node.right
     # puts
     # NodeVisitor.preorder(node)
-    return node
+    node
   end
 
   def self.condition
-    node = expression
+    expression
     if accept(KeyId::COMPARISON)
-      return node = IfConditionAST.new(node, @prev_value, expression)
+      expression
     else
       raise 'Condition: invalid operator'
     end
@@ -140,11 +138,9 @@ module SynAnalyzer
   def self.program(arr)
     @arr = arr
     next_token
-   # init unless @arr.empty?
+    # init unless @arr.empty?
     init
-    @root_node << Tree::TreeNode.new("END", 'end')
-   @root_node.print_tree
-   # ap tree
-
+    @root_node << Tree::TreeNode.new('END', 'end')
+    @root_node.print_tree
   end
 end
