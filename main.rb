@@ -13,7 +13,7 @@ class Main
     puts data
     puts '____________________________________'
     analyzed = LexAnalyzer.analyze(data)
-    puts analyzed
+    # puts analyzed
     # LexAnalyzer.print_array(analyzed)
     SynAnalyzer.program(analyzed)
   end
