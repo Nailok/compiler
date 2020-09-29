@@ -102,11 +102,9 @@ module SynAnalyzer
     arr << { 'operation' => @token_value } if @token_value == KeyId::ARITHMETIC
 
     while accept(KeyId::MULTIPLY) || accept(KeyId::DIV)
-    arr << factor
-      # arr << { 'value' => factor}
+      arr << factor
       arr << { 'operation' => @token_value } if @token_value == KeyId::ARITHMETIC
     end
-    # puts arr
     arr
   end
 
@@ -114,13 +112,9 @@ module SynAnalyzer
     arr = []
     next_token if accept(KeyId::PLUS) || accept(KeyId::MINUS)
     arr << { 'value' => term }
-    # arr << { 'operation' => @prev_value } if @token_value != KeyId::EOL
-    # term
     while accept(KeyId::PLUS) || accept(KeyId::MINUS)
       sign = @prev_value
       arr << { 'value' => term }
-               # arr << { 'operation' => sign } if @token_value != KeyId::EOL
-      # term
     end
     add_node('none', var, arr, 'expression')
     arr
@@ -132,9 +126,9 @@ module SynAnalyzer
     left = expression('none')
     if accept(KeyId::COMPARISON)
       sign = @prev_value
-    add_node('none', 'none', sign, 'condition')
+      add_node('none', 'none', sign, 'condition')
       right = expression('none')
-    add_node('none', 'none', 'none', 'condition_close')
+      add_node('none', 'none', 'none', 'condition_close')
     else
       raise 'Condition: invalid operator'
     end
@@ -155,7 +149,7 @@ module SynAnalyzer
       if accept(KeyId::ELSE)
         add_node('none', 'none', 'none', 'else')
         if accept(KeyId::IF)
-        add_node('none', 'none', 'none', 'if')
+          add_node('none', 'none', 'none', 'if')
           expect(KeyId::ROUND_L_BRACE)
           condition
           expect(KeyId::ROUND_R_BRACE)
