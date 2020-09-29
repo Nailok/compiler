@@ -15,6 +15,9 @@ class Main
     analyzed = LexAnalyzer.analyze(data)
     # puts analyzed
     LexAnalyzer.print_array(analyzed)
-    SynAnalyzer.program(analyzed)
+    tree = SynAnalyzer.program(analyzed)
+    SemAnalyzer.fill_all_vars(tree)
+
+    SemAnalyzer.print
   end
 end

@@ -1,12 +1,12 @@
 int a5=10;
 int b=5;
 
-a = 1 + 1 +1;
-if (a>=10)
+a5 = 1 + 1 +1;
+if (a5>=10)
 {
-    a = a + b;
+    a5 = a5 + b;
 }
-else if (a<5)
+else if (a5<5)
 {
     b = b + b;
 }

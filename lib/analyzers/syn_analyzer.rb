@@ -169,5 +169,6 @@ module SynAnalyzer
     init until @arr.empty?
 
     print_tree
+    return @tree
   end
 end
