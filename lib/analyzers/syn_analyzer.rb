@@ -11,6 +11,24 @@ module SynAnalyzer
   @arr = []
   @errors = []
   @root_node = Tree::TreeNode.new('BEGIN', 'begin')
+  @step = 0
+  @tree = []
+
+  def self.add_node(type, name, value, string_type)
+    props = { 'type' => type, 'name' => name, 'value' => value, 'string_type' => string_type }
+    @tree << props
+  end
+
+  def self.print_tree
+    @tree.each do |node|
+      puts node
+    end
+  end
+
+  def self.inc_step
+    @step += 1
+    @step
+  end
 
   def self.next_token
     unless @arr.empty?
@@ -51,15 +69,12 @@ module SynAnalyzer
 
   def self.init
     if accept(KeyId::INT)
-      loop do
-        temp = @root_node << Tree::TreeNode.new("VARIABLE_DECLARATION (#{@token_value})", @token_value)
-        temp << Tree::TreeNode.new('VARIABLE_TYPE (INT)', KeyId::INT)
-        expect(KeyId::VAR)
-        expect(KeyId::ASSIGNMENT)
-        if accept(KeyId::VAR) || accept(KeyId::NUMBER)
-        else raise 'init: Wrong symbol'
-        end
-        break unless accept(KeyId::COMMA)
+      expect(KeyId::VAR)
+      temp_var = @prev_value
+      expect(KeyId::ASSIGNMENT)
+      if accept(KeyId::VAR) || accept(KeyId::NUMBER)
+        add_node('int', temp_var, @prev_value, 'init')
+      else raise 'init: Wrong symbol'
       end
       expect(KeyId::EOL)
       init
@@ -69,41 +84,57 @@ module SynAnalyzer
 
   def self.factor
     if accept(KeyId::VAR)
+      @prev_value
     elsif accept(KeyId::NUMBER)
+      @prev_value
     elsif accept(KeyId::ROUND_L_BRACE)
-      node = expression
+      expression
       expect(KeyId::ROUND_R_BRACE)
     else
       raise 'Factor: Wrong symbol'
     end
-
-    node
   end
 
   def self.term
-    factor
-    factor while accept(KeyId::MULTIPLY) || accept(KeyId::DIV)
-    node
+    arr = []
+    sign = @prev_value
+    arr << factor
+    arr << { 'operation' => @token_value } if @token_value == KeyId::ARITHMETIC
+
+    while accept(KeyId::MULTIPLY) || accept(KeyId::DIV)
+    arr << factor
+      # arr << { 'value' => factor}
+      arr << { 'operation' => @token_value } if @token_value == KeyId::ARITHMETIC
+    end
+    # puts arr
+    arr
   end
 
-  def self.expression
-     if accept(KeyId::PLUS) || accept(KeyId::MINUS) 
-       next_token
-     end
-    node = term
-    term while accept(KeyId::PLUS) || accept(KeyId::MINUS)
-    # p node
-    # p node.left
-    # p node.right
-    # puts
-    # NodeVisitor.preorder(node)
-    node
+  def self.expression(var)
+    arr = []
+    next_token if accept(KeyId::PLUS) || accept(KeyId::MINUS)
+    arr << { 'value' => term }
+    # arr << { 'operation' => @prev_value } if @token_value != KeyId::EOL
+    # term
+    while accept(KeyId::PLUS) || accept(KeyId::MINUS)
+      sign = @prev_value
+      arr << { 'value' => term }
+               # arr << { 'operation' => sign } if @token_value != KeyId::EOL
+      # term
+    end
+    add_node('none', var, arr, 'expression')
+    arr
   end
 
   def self.condition
-    expression
+    arr = []
+    add_node('none', 'none', 'none', 'condition_open')
+    left = expression('none')
     if accept(KeyId::COMPARISON)
-      expression
+      sign = @prev_value
+    add_node('none', 'none', sign, 'condition')
+      right = expression('none')
+    add_node('none', 'none', 'none', 'condition_close')
     else
       raise 'Condition: invalid operator'
     end
@@ -111,17 +142,20 @@ module SynAnalyzer
 
   def self.statement
     if accept(KeyId::VAR)
+      temp_var = @prev_value
       expect(KeyId::ASSIGNMENT)
-      expression
+      expression(temp_var)
       expect(KeyId::EOL)
     elsif accept(KeyId::IF)
       expect(KeyId::ROUND_L_BRACE)
-      node = condition
+      condition
       expect(KeyId::ROUND_R_BRACE)
       expect(KeyId::L_BRACE)
       statement until accept(KeyId::R_BRACE)
       if accept(KeyId::ELSE)
+        add_node('none', 'none', 'none', 'else')
         if accept(KeyId::IF)
+        add_node('none', 'none', 'none', 'if')
           expect(KeyId::ROUND_L_BRACE)
           condition
           expect(KeyId::ROUND_R_BRACE)
@@ -138,9 +172,8 @@ module SynAnalyzer
   def self.program(arr)
     @arr = arr
     next_token
-    # init unless @arr.empty?
-    init
-    @root_node << Tree::TreeNode.new('END', 'end')
-    @root_node.print_tree
+    init until @arr.empty?
+
+    print_tree
   end
 end

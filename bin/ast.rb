@@ -1,22 +1,23 @@
 require 'awesome_print'
 
 class AST
-  attr_accessor :left, :operator, :right
+  attr_accessor :type, :value, :parent, :children
 
-  # def initialize(left, operator, right)
-  # @left = left
-  # @operator = operator
-  # @right = right
-  # end
+  def initialize(type, value, child1, child2)
+    @type = type
+    @value = value
+    @child1 = child1
+    @child2 = child2
+  end
 
-  def self.show(node)
-    return if node.nil?
+  def add_child(child)
+    if (child.parent != nil)
+      child.parent.children.delete(child)
+    end
 
-    puts 'Operator: ' + node.operator
-    puts 'Left: ' + node.left.value
-    puts 'Right: ' + node.right.value
-    show(node.left)
-    show(node.right)
+    children.delete(child)
+    children << child
+    child.parent = self
   end
 end
 
