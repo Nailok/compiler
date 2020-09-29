@@ -99,11 +99,11 @@ module SynAnalyzer
     arr = []
     sign = @prev_value
     arr << factor
-    arr << { 'operation' => @token_value } if @token_value == KeyId::ARITHMETIC
+    arr << { 'operation' => @token_value } if @token_type == KeyId::ARITHMETIC
 
     while accept(KeyId::MULTIPLY) || accept(KeyId::DIV)
       arr << factor
-      arr << { 'operation' => @token_value } if @token_value == KeyId::ARITHMETIC
+      arr << { 'operation' => @token_value } if @token_type == KeyId::ARITHMETIC
     end
     arr
   end
