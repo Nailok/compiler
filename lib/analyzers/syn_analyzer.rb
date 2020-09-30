@@ -1,5 +1,3 @@
-require 'tree'
-
 require_relative '../../bin/ast.rb'
 require_relative '../../bin/token.rb'
 require_relative '../../bin/key_id.rb'
@@ -10,9 +8,14 @@ module SynAnalyzer
   @token_type = @current_tok.type.to_s
   @arr = []
   @errors = []
-  @root_node = Tree::TreeNode.new('BEGIN', 'begin')
   @step = 0
   @tree = []
+  @@variables = []
+  @@int_variables = []
+  
+  def self.variables
+    @@variables.uniq
+  end
 
   def self.add_node(type, name, value, string_type)
     props = { 'type' => type, 'name' => name, 'value' => value, 'string_type' => string_type }
@@ -23,11 +26,6 @@ module SynAnalyzer
     @tree.each do |node|
       puts node
     end
-  end
-
-  def self.inc_step
-    @step += 1
-    @step
   end
 
   def self.next_token
@@ -42,8 +40,25 @@ module SynAnalyzer
       @token_type = @current_tok.type.to_s
       @token_value = @current_tok.value.upcase
       @token_line = temp.values[1]
+
+      if @token_type == KeyId::VAR && @prev_type != KeyId::INT
+        @@variables << @token_value
+      end
+
+      if @token_type == KeyId::VAR && @prev_type == KeyId::INT
+        @@int_variables << @token_value
+      end
     end
   end
+
+  def self.variables
+    @@variables.uniq
+  end
+
+  def self.int_variables
+    @@int_variables.uniq
+  end
+
 
   def self.present_in_token?(value)
     return true if @token_type == value || @token_value == value
@@ -53,7 +68,7 @@ module SynAnalyzer
 
   def self.accept(value)
     if present_in_token?(value)
-      p 'Value: ' + value + ' accepted.'
+      # p 'Value: ' + value + ' accepted.'
       next_token
       return true
     end
@@ -99,11 +114,11 @@ module SynAnalyzer
     arr = []
     sign = @prev_value
     arr << factor
-    arr << { 'operation' => @token_value } if @token_type == KeyId::ARITHMETIC
+    arr << @token_value if @token_type == KeyId::ARITHMETIC
 
     while accept(KeyId::MULTIPLY) || accept(KeyId::DIV)
       arr << factor
-      arr << { 'operation' => @token_value } if @token_type == KeyId::ARITHMETIC
+      arr << @token_value if @token_type == KeyId::ARITHMETIC
     end
     arr
   end
@@ -111,10 +126,10 @@ module SynAnalyzer
   def self.expression(var)
     arr = []
     next_token if accept(KeyId::PLUS) || accept(KeyId::MINUS)
-    arr << { 'value' => term }
+    arr << term 
     while accept(KeyId::PLUS) || accept(KeyId::MINUS)
       sign = @prev_value
-      arr << { 'value' => term }
+      arr << term
     end
     add_node('none', var, arr, 'expression')
     arr
@@ -139,6 +154,7 @@ module SynAnalyzer
       temp_var = @prev_value
       expect(KeyId::ASSIGNMENT)
       expression(temp_var)
+      @tree.last["string_type"] = 'assignment'
       expect(KeyId::EOL)
     elsif accept(KeyId::IF)
       expect(KeyId::ROUND_L_BRACE)
@@ -147,12 +163,13 @@ module SynAnalyzer
       expect(KeyId::L_BRACE)
       statement until accept(KeyId::R_BRACE)
       if accept(KeyId::ELSE)
-        add_node('none', 'none', 'none', 'else')
+        add_node('none', 'none', 'none', 'else_open')
         if accept(KeyId::IF)
           add_node('none', 'none', 'none', 'if')
           expect(KeyId::ROUND_L_BRACE)
           condition
           expect(KeyId::ROUND_R_BRACE)
+        add_node('none', 'none', 'none', 'else_close')
         end
         expect(KeyId::L_BRACE)
         statement until accept(KeyId::R_BRACE)

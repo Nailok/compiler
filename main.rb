@@ -13,11 +13,8 @@ class Main
     puts data
     puts '____________________________________'
     analyzed = LexAnalyzer.analyze(data)
-    # puts analyzed
     LexAnalyzer.print_array(analyzed)
     tree = SynAnalyzer.program(analyzed)
-    SemAnalyzer.fill_all_vars(tree)
-
-    SemAnalyzer.print
+    table = SemAnalyzer.check_vars(tree)
   end
 end

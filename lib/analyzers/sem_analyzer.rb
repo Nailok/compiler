@@ -2,10 +2,9 @@
 module SemAnalyzer
   @variables = []
 
-  def self.insert(key, value, position)
+  def self.insert(key, value)
     @var_params = {}
     @var_params[key] = value
-    @var_params['position'] = position
 
     @variables << @var_params
   end
@@ -21,33 +20,44 @@ module SemAnalyzer
   end
 
   def self.fill_table(tree)
-    puts '___________________________________________________'
     tree.each do |node|
-      insert(node["name"], node["value"], i) if node["type"] == 'int'
-      i += 1
+      insert(node['name'], node['value']) if node['type'] == 'int'
     end
   end
 
-  def self.fill_all_vars(tree)
-    i = 0
+  def self.check_uninitialized_vars
+    res = (SynAnalyzer.variables.to_a - SynAnalyzer.int_variables.to_a)
+    if  (SynAnalyzer.variables.to_a - SynAnalyzer.int_variables.to_a).empty?
+    else
+      raise 'Vars are not initialized: ' + res.to_s
+    end
+  end
+
+  def self.check_vars(tree)
+    check_uninitialized_vars
+
     tree.each do |node|
-      insert(node["name"], node["value"], i) if node["type"] == 'int'
-      i += 1
-      if node["name"] != 'none'
-        if h = @variables.find { |hash| hash.key?(node["name"]) }
-        else 
-          raise "Variable " + node["name"] + " is not initialized" 
+      insert(node['name'], node['value']) if node['type'] == 'int'
+
+      node.values.each do |val|
+        if val.is_a?(Array)
+          val.flatten!
+
+          val.each do |v|
+            next unless SynAnalyzer.variables.include?(v)
+            if @variables.find { |hash| hash.key?(v) }
+            else
+              raise 'Variable ' + v.to_s + ' is not initialized'
+            end
+          end
+
+        elsif SynAnalyzer.variables.include?(val)
+          if @variables.find { |hash| hash.key?(val.to_s) }
+          else
+            raise 'Variable ' + node['name'] + ' is not initialized'
+          end
         end
-        @variables.each do |elem|
-          
-          # puts node.assoc(elem["name"]) 
-          # puts elem
-          # puts
-         # if node.assoc(elem["name"]) == nil
-           # raise 'Variable is not initialized'
-         # end
-        end
-      end 
+      end
     end
   end
 end
