@@ -15,6 +15,8 @@ class Main
     analyzed = LexAnalyzer.analyze(data)
     LexAnalyzer.print_array(analyzed)
     tree = SynAnalyzer.program(analyzed)
-    table = SemAnalyzer.check_vars(tree)
+    SemAnalyzer.check_vars(tree)
+    puts 'Translated code: '
+    Translator.translate(tree)
   end
 end

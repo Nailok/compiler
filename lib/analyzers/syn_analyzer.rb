@@ -139,10 +139,12 @@ module SynAnalyzer
     arr = []
     add_node('none', 'none', 'none', 'condition_open')
     left = expression('none')
+    @tree.last["string_type"] = 'condition'
     if accept(KeyId::COMPARISON)
       sign = @prev_value
-      add_node('none', 'none', sign, 'condition')
-      right = expression('none')
+      add_node('none', 'none', sign, 'condition_sign')
+      right = expression('none')  
+      @tree.last["string_type"] = 'condition'
       add_node('none', 'none', 'none', 'condition_close')
     else
       raise 'Condition: invalid operator'
@@ -161,18 +163,20 @@ module SynAnalyzer
       condition
       expect(KeyId::ROUND_R_BRACE)
       expect(KeyId::L_BRACE)
+      add_node('none', 'none', 'none', 'if-body_open')
       statement until accept(KeyId::R_BRACE)
+      add_node('none', 'none', 'none', 'if-body_close')
+
       if accept(KeyId::ELSE)
-        add_node('none', 'none', 'none', 'else_open')
+        add_node('none', 'none', 'none', 'else-body_open')
         if accept(KeyId::IF)
-          add_node('none', 'none', 'none', 'if')
           expect(KeyId::ROUND_L_BRACE)
           condition
           expect(KeyId::ROUND_R_BRACE)
-        add_node('none', 'none', 'none', 'else_close')
         end
         expect(KeyId::L_BRACE)
         statement until accept(KeyId::R_BRACE)
+        add_node('none', 'none', 'none', 'else-body_close')
       elsif accept(KeyId::L_BRACE)
         statement
         expect(KeyId::R_BRACE)

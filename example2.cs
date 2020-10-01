@@ -1,6 +1,13 @@
 int a = 5;
-int c = 1;
-c = 1 + 2;
-int d = 1;
-c = 1231 + d;
-a = 2;
+int b = 1;
+if ( a > b )
+{
+  a = 2 + 3;
+  if ( b > a )
+  {
+	  a = b;
+  }
+}
+else {
+	a = 3 + 3;
+}
